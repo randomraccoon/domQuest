@@ -1,6 +1,6 @@
 body
 {
-    font-family: 'Encode Sans', sans-serif;
+    font-family: 'Fondamento', sans-serif;
 
     margin: 0;
 
@@ -22,13 +22,18 @@ header
     margin: 0;
 
     background-color: rgba(255,255,255,.5);
+    /*Photo by Alex Iby on Unsplash*/
     box-shadow: 0 0 30px 1px rgba(255,255,255,.5);
 }
 
-h1
+.quest-box h3
+{
+    font-size: 1.3em;
+}
+
+header h1
 {
     letter-spacing: 10px;
-    /*text-transform: uppercase;*/
 }
 
 .quest-container
@@ -46,12 +51,6 @@ h1
     padding: 0 0 40px 0;
 
     text-align: center;
-    /*border: 1px solid black;*/
-}
-
-.quest-box h3
-{
-    /*margin: 0;*/
 }
 
 header,
@@ -61,6 +60,7 @@ header,
     background-color: rgba(255,255,255,.5);
     box-shadow: 0 0 30px 1px rgba(0,0,0,.5);
 }
+
 
 .log
 {
