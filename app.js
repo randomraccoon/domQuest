@@ -9,7 +9,7 @@ const QUESTS = [{
     btnId: "small-quest-btn",
     minGoldLoot: 10,
     maxGoldLoot: 20,
-    successRate: 0.5,
+    targetLevel: 3,
     expLoot: 5
   },
   {
@@ -17,7 +17,7 @@ const QUESTS = [{
     btnId: "long-quest-btn",
     minGoldLoot: 30,
     maxGoldLoot: 50,
-    successRate: 0.3,
+    targetLevel: 7,
     expLoot: 20
   },
   {
@@ -25,7 +25,7 @@ const QUESTS = [{
     btnId: "boss-fight-btn",
     minGoldLoot: 70,
     maxGoldLoot: 100,
-    successRate: 0.1,
+    targetLevel: 12,
     expLoot: 100
   },
 ];
@@ -49,15 +49,17 @@ const completeQuest = (ev) => {
   for (let quest of QUESTS) {
     if (quest.btnId === btnId) {
       let loot = 0;
-      let successRate = getSuccessRate(quest.successRate);
+      let successRate = getSuccessRate(quest);
       if (successRate >= Math.random()) {
         loot = randInt(quest.minGoldLoot, quest.maxGoldLoot);
         money += loot;
         experience += quest.expLoot;
         log(`${quest.name} was a success! You won ${loot} gold and ${quest.expLoot} experience.`);
       } else {
-        let expLoot = Math.ceil(quest.expLoot / 10);
-        log(`${quest.name} failed. All you got was ${expLoot} experience.`);
+        let expLoot = Math.ceil(quest.expLoot * getSuccessRate(quest) / 10);
+        let msg = `${quest.name} failed. `;
+        msg += expLoot > 0 ? `All you got was ${expLoot} experience.` : "What were you thinking?";
+        log(msg);
         experience += expLoot;
       }
       updateDisplay();
@@ -66,8 +68,12 @@ const completeQuest = (ev) => {
   }
 }
 
-const getSuccessRate = (base) => {
-  return (1-((1-base)*Math.pow(0.9,level-1)));
+const getSuccessRate = (quest) => {
+  let target = quest.targetLevel;
+  if (level < target-10) return 0;
+  if (level >= target+10) return 0.99;
+  if (level <= target) return 0.008*Math.pow(level+10-target,2);
+  return 1 - 0.2/(level+1-target);
 }
 
 const updateDisplay = () => {
@@ -82,7 +88,7 @@ const updateQuestDisplay = () => {
     let questTitle = questBox.querySelector('h3').textContent;
     let quest = QUESTS.filter(q=>q.name===questTitle)[0];
 
-    let newRate = Math.floor(getSuccessRate(quest.successRate) * 100);
+    let newRate = Math.floor(getSuccessRate(quest) * 100);
     questBox.querySelector(".success-rate").textContent = newRate;
   }
 }
