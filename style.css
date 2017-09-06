@@ -6,8 +6,7 @@ body
 
     text-align: center;
 
-    background-color: #232323;
-    background-image: url('path.jpg');
+    background: #232323 url(path.jpg) no-repeat center center fixed;
     background-size: cover;
 }
 
@@ -26,14 +25,59 @@ header
     box-shadow: 0 0 30px 1px rgba(255,255,255,.5);
 }
 
-.quest-box h3
-{
-    font-size: 1.3em;
-}
-
 header h1
 {
     letter-spacing: 10px;
+}
+
+
+
+.stat-display > *
+{
+    display: inline-block;
+
+    width: 200px;
+    height: 25px;
+    margin: 0 5%;
+}
+
+.level-bar
+{
+    overflow: hidden;
+
+    padding: 0;
+
+    text-align: left;
+
+    border: 1px solid rgba(30,30,30,.5);
+    border-radius: 5px;
+    background-color: rgba(100,100,100,.5);
+}
+
+.level-progress
+{
+    width: 0;
+    height: 100%;
+
+    background-color: rgba(0,170,0,.7);
+}
+
+.level-progress h3
+{
+    position: absolute;
+
+    width: 200px;
+    margin: 0;
+
+    text-align: center;
+}
+
+header,
+.quest-box,
+.log
+{
+    background-color: rgba(255,255,255,.5);
+    box-shadow: 0 0 30px 1px rgba(0,0,0,.5);
 }
 
 .quest-container
@@ -53,12 +97,10 @@ header h1
     text-align: center;
 }
 
-header,
-.quest-box,
-.log
+
+.quest-box h3
 {
-    background-color: rgba(255,255,255,.5);
-    box-shadow: 0 0 30px 1px rgba(0,0,0,.5);
+    font-size: 1.3em;
 }
 
 
@@ -68,6 +110,8 @@ header,
 
     margin: 0 auto;
     padding: 20px 0;
+
+    transition: all .2s;
 }
 
 .log p

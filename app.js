@@ -1,31 +1,38 @@
 const MONEY_DISPLAY = document.querySelector(".money");
 const QUEST_CONTAINER = document.querySelector(".quest-container");
 const LOG_DISPLAY = document.querySelector(".log");
+const LEVEL_DISPLAY = document.querySelector(".level");
+const LEVEL_PROGRESS_BAR = document.querySelector(".level-progress");
 
 const QUESTS = [{
     name: "Small Quest",
-    btnid: "small-quest-btn",
-    min: 10,
-    max: 20,
-    successRate: 0.5
+    btnId: "small-quest-btn",
+    minGoldLoot: 10,
+    maxGoldLoot: 20,
+    successRate: 0.5,
+    expLoot: 5
   },
   {
     name: "Long Quest",
-    btnid: "long-quest-btn",
-    min: 10,
-    max: 20,
-    successRate: 0.3
+    btnId: "long-quest-btn",
+    minGoldLoot: 30,
+    maxGoldLoot: 50,
+    successRate: 0.3,
+    expLoot: 20
   },
   {
     name: "Boss Fight",
-    btnid: "boss-fight-btn",
-    min: 10,
-    max: 20,
-    successRate: 0.1
+    btnId: "boss-fight-btn",
+    minGoldLoot: 70,
+    maxGoldLoot: 100,
+    successRate: 0.1,
+    expLoot: 100
   },
 ];
 
 let money = 0;
+let experience = 0;
+let level = 1;
 
 let logArr = [];
 
@@ -33,27 +40,67 @@ window.onload = () => {
   for (let quest of QUESTS) {
     QUEST_CONTAINER.appendChild(buildQuestBox(quest));
   }
+  updateDisplay();
 }
 
 
-const incrementMoney = (ev) => {
+const completeQuest = (ev) => {
   let btnId = ev.target.id;
-  for (let btn of QUESTS) {
-    if (btn.btnid === btnId) {
+  for (let quest of QUESTS) {
+    if (quest.btnId === btnId) {
       let loot = 0;
-      if (btn.successRate >= Math.random()) {
-        loot = randInt(btn.min, btn.max);
+      let successRate = getSuccessRate(quest.successRate);
+      if (successRate >= Math.random()) {
+        loot = randInt(quest.minGoldLoot, quest.maxGoldLoot);
         money += loot;
-        MONEY_DISPLAY.textContent = money;
-        log(btn.name + " was a success! You won " + loot + " gold.");
+        experience += quest.expLoot;
+        log(`${quest.name} was a success! You won ${loot} gold and ${quest.expLoot} experience.`);
       } else {
-        log(btn.name + " failed. You won nothing.");
+        let expLoot = Math.ceil(quest.expLoot / 10);
+        log(`${quest.name} failed. All you got was ${expLoot} experience.`);
+        experience += expLoot;
       }
-
-
+      updateDisplay();
       return;
     }
   }
+}
+
+const getSuccessRate = (base) => {
+  return (1-((1-base)*Math.pow(0.9,level-1)));
+}
+
+const updateDisplay = () => {
+  MONEY_DISPLAY.textContent = money.toLocaleString();
+  updateLevelDisplay();
+  updateQuestDisplay();
+}
+
+const updateQuestDisplay = () => {
+  for (let questBox of QUEST_CONTAINER.childNodes) {
+    // identify quest
+    let questTitle = questBox.querySelector('h3').textContent;
+    let quest = QUESTS.filter(q=>q.name===questTitle)[0];
+
+    let newRate = Math.floor(getSuccessRate(quest.successRate) * 100);
+    questBox.querySelector(".success-rate").textContent = newRate;
+  }
+}
+
+const updateLevelDisplay = () => {
+  let totalExp = expByLevel(level);
+  while (experience >= totalExp) {
+    level++;
+    experience -= totalExp;
+    totalExp = expByLevel(level);
+  }
+  LEVEL_DISPLAY.textContent = level;
+  let progPercent = experience / totalExp * 100;
+  LEVEL_PROGRESS_BAR.style.width = progPercent + '%';
+}
+
+const expByLevel = (level) => {
+  return level * 100;
 }
 
 const randInt = (min, max) => {
@@ -70,7 +117,7 @@ const displayLog = () => {
   while (LOG_DISPLAY.childNodes.length >= logArr.length) {
     LOG_DISPLAY.removeChild(LOG_DISPLAY.lastChild);
   }
-  
+
   let line = document.createElement("p");
   line.textContent = logArr[0];
   LOG_DISPLAY.prepend(line);
@@ -85,17 +132,22 @@ const buildQuestBox = (quest) => {
   box.appendChild(title);
 
   let earnings = document.createElement("p");
-  earnings.textContent = `Earns ${quest.min} to ${quest.max} gold.`;
+  earnings.textContent = `Earns ${quest.minGoldLoot}-${quest.maxGoldLoot} gold`;
   box.appendChild(earnings);
 
-  let rate = document.createElement("p");
-  rate.textContent = `${quest.successRate*100}% chance of success.`;
-  box.appendChild(rate);
+  let rateP = document.createElement("p");
+  rateP.textContent = `% chance of success`;
+
+  let rate = document.createElement("span");
+  rate.classList.add("success-rate");
+  rateP.prepend(rate);
+
+  box.appendChild(rateP);
 
   let button = document.createElement("button");
-  button.id = quest.btnid;
+  button.id = quest.btnId;
   button.textContent = "Take Quest";
-  button.addEventListener("click", incrementMoney);
+  button.addEventListener("click", completeQuest);
   box.appendChild(button);
 
   return box;
